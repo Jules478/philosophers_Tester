@@ -11,10 +11,24 @@ RESET='\033[0m'
 run_err() 
 {
 	local test_desc=$1
+	local runtime=10
 	shift
 	> .julestestfile
 	> .julestestout
-	./philo $@ > .julestestout 2> .julesstderr
+	> .julesstderr
+
+	( ./philo "$@" > .julestestout 2> .julesstderr ) &
+	PID=$!
+	SECONDS=0
+	while ps -p $PID > /dev/null; do
+		if [ $SECONDS -gt $runtime ]; then
+			kill $PID
+			echo -n "❌"
+			echo -e "$test_desc: Program timed out. Possible infinite loop\n" >> philo_trace
+			return 1
+		fi
+		sleep 1
+	done
 	exit_code=$?
 	if [ $exit_code -eq 139 ]; then
 		echo -n "❌"
@@ -35,10 +49,22 @@ run_one()
 	local test_desc=$1
 	local min=$3
 	local max=$((min + 10))
+	local runtime=20
 	shift
 	> .julestestout
 	> .julesone
-	./philo $@ 1> .julesone 2> /dev/null
+	( ./philo $@ 1> .julesone 2> /dev/null ) &
+	PID=$!
+	SECONDS=0
+	while ps -p $PID > /dev/null; do
+		if [ $SECONDS -gt $runtime ]; then
+			kill $PID
+			echo -n "❌"
+			echo -e "$test_desc: Program timed out. Possible infinite loop\n" >> philo_trace
+			return 1
+		fi
+		sleep 1
+	done
 	time=$(tail -n 1 .julesone | awk '{print $1}')
 	if ((time >= min)) && ((time <= max)); then
 		tail -n 1 .julesone | sed 's/[0-9]\+ //' > .julestestout
@@ -65,23 +91,35 @@ run_full()
 	local eat=$6
 	local forks=$(( eat * philo * 2))
 	local tolerance=1
+	local runtime=20
 	shift
 	> .julestestout
 	> .julesphilolog
-	./philo $@ 1> .julestestout 2> /dev/null
+	( ./philo $@ 1> .julestestout 2> /dev/null ) &
+	PID=$!
+	SECONDS=0
+	while ps -p $PID > /dev/null; do
+		if [ $SECONDS -gt $runtime ]; then
+			kill $PID
+			echo -n "❌"
+			echo -e "$test_desc: Program timed out. Possible infinite loop\n" >> philo_trace
+			return 1
+		fi
+		sleep 1
+	done
 	awk '$2 == "1"' .julestestout > .julesphilolog
 	read eat_time sleep_time think_time < <(awk '
-    $4 == "eating" && !eat_time {
-        eat_time = $1
-    }  
-    eat_time && $4 == "sleeping" && !sleep_time {
-        sleep_time = $1
-    }  
-    sleep_time && $4 == "thinking" {
-        think_time = $1
-        print eat_time, sleep_time, think_time
-        exit
-    }
+	$4 == "eating" && !eat_time {
+		eat_time = $1
+	}  
+	eat_time && $4 == "sleeping" && !sleep_time {
+		sleep_time = $1
+	}  
+	sleep_time && $4 == "thinking" {
+		think_time = $1
+		print eat_time, sleep_time, think_time
+		exit
+	}
 	' .julesphilolog)
 	if grep -q " died" .julestestout; then
 		echo -n "❌"
@@ -118,10 +156,22 @@ run_death()
 	local time_eat=$4
 	local time_sleep=$5
 	local eat=$6
+	local runtime=20
 	shift
 	> .julestestout
 	> .julesphilolog
-	./philo $@ 1> .julestestout 2> /dev/null
+	( ./philo $@ 1> .julestestout 2> /dev/null ) &
+	PID=$!
+	SECONDS=0
+	while ps -p $PID > /dev/null; do
+		if [ $SECONDS -gt $runtime ]; then
+			kill $PID
+			echo -n "❌"
+			echo -e "$test_desc: Program timed out. Possible infinite loop\n" >> philo_trace
+			return 1
+		fi
+		sleep 1
+	done
 	time=$(tail -n 1 .julestestout | awk '{print $1}')
 	dead_id=$(awk '$3 == "died" {id = $2} END {print id}' .julestestout)
 	awk -v id="$dead_id" '$2 == id' .julestestout > .julesdeathlog
