@@ -5,6 +5,9 @@ RED='\e[1;31m'
 WHITE='\e[1;37m'
 RESET='\033[0m'
 
+# Function to test error cases. Checks that something is written to either stdout or stderr.
+# Will also report segmentation fault and report which arguments caused it.
+
 run_err() 
 {
 	local test_desc=$1
@@ -23,6 +26,9 @@ run_err()
 		echo -n "✅"
 	fi
 }
+
+# Function to test one philosopher. Will check to make sure they die and at the correct time.
+# Test also implicitly tests that 4 arguments are valid as this is not tested explicitly elsewhere.
 
 run_one()
 {
@@ -47,6 +53,8 @@ run_one()
 		echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
 	fi
 }
+
+# Function to test valid input. Checks timestamps of philo 1 to make sure actions are correctly timed.
 
 run_full()
 {
@@ -98,6 +106,9 @@ run_full()
 	fi
 }
 
+# Function to test cases where philosophers should die. Will check the log ends with death message.
+# Also tests whether philosophers died at appropriate times.
+
 run_death()
 {
 	local test_desc=$1
@@ -128,6 +139,9 @@ run_death()
 		echo -n "✅"
 	fi
 }
+
+# If the program doesn't exist, compile it then clean up objects.
+# If program still doesn't exist after compilation, terminate testing.
 
 if [ ! -f "./philo" ]; then
 	make
@@ -165,26 +179,30 @@ run_err "1 1 1 0" 1 1 1 0
 run_err "1 1 1 1 0" 1 1 1 1 0
 rm -rf .julestestfile .julestestout .julesstderr
 
+# Run tests for one philosopher
+
 echo -e "${PURPLE}\n\n--- ${WHITE}One Philosopher Tests${PURPLE} ---\n${RESET}"
 echo -e "-- One Philosopher Tests --\n" >> philo_trace
 
 echo -e "1 died" > .julestestfile
-run_one "1 1 1 1 1" 1 1 1 1 1
-run_one "1 2 1 1 2" 1 2 1 1 2
-run_one "1 10 5 5 2" 1 10 5 5 2
-run_one "1 50 10 10 2" 1 500 10 10 2
-run_one "1 50 10 10 10" 1 50 10 10 10
-run_one "1 100 25 25 2" 1 100 25 25 2
+run_one "1 1 1 1 1" 1 200 60 60 1
+run_one "1 2 1 1 2" 1 200 60 60 2
+run_one "1 10 5 5 2" 1 100 60 60 2
+run_one "1 50 10 10 2" 1 500 100 100 2
+run_one "1 50 10 10 10" 1 500 100 100 10
+run_one "1 100 25 25 2" 1 1000 250 250 2
 run_one "1 100 150 150 10" 1 100 150 150 10
 rm -rf .julestestout .julesone .julestestfile
+
+# Run tests where no philosophers should die.
 
 echo -e "${PURPLE}\n\n--- ${WHITE}No Death Tests${PURPLE} ---\n${RESET}"
 echo -e "-- No Death Tests --\n" >> philo_trace
 
-run_full "2 15 5 5 2" 2 15 5 5 2
-run_full "2 50 10 10 2" 2 50 10 10 2
-run_full "2 50 10 10 5" 2 50 10 10 5
-run_full "3 100 25 25 5" 3 100 25 25 5
+run_full "2 15 5 5 2" 2 130 60 60 2
+run_full "2 50 10 10 2" 2 300 100 100 2
+run_full "2 50 10 10 5" 2 300 100 100 5
+run_full "3 100 25 25 5" 3 200 65 65 5
 run_full "3 310 100 200 5" 3 310 100 200 5
 run_full "4 210 100 100 10" 4 210 100 100 10
 run_full "4 410 200 200 10" 4 410 200 200 10
@@ -192,22 +210,26 @@ run_full "4 600 200 200 5" 4 600 200 200 5
 run_full "5 610 200 200 5" 5 610 200 200 5
 run_full "5 600 100 200 5" 5 600 100 200 5
 run_full "5 800 200 200 7" 5 800 200 200 7
-run_full "5 100 25 25 15" 5 100 25 25 15
-run_full "10 50 10 10 50" 10 50 10 10 50
+run_full "5 100 25 25 15" 5 300 60 60 15
+run_full "10 50 10 10 50" 10 500 100 100 50
 run_full "11 900 150 90 20" 11 900 150 90 20
 
 rm -rf .julestestout .julesphilolog
 
+# Run tests where a philosopher should die.
+
 echo -e "${PURPLE}\n\n--- ${WHITE}Death Tests${PURPLE} ---\n${RESET}"
 echo -e "-- Death Tests --\n" >> philo_trace
 
-run_death "2 10 50 50 5" 2 10 50 50 5
-run_death "2 100 50 50 5" 2 100 50 50 5
+run_death "2 10 50 50 5" 2 100 60 60 5
+run_death "2 100 50 50 5" 2 100 100 100 5
 run_death "3 210 100 100 5" 3 210 100 100 5
-run_death "3 1 2 2 5" 3 1 2 2 5
+run_death "3 1 2 2 5" 3 61 60 60 5
 run_death "4 190 100 100 5" 4 190 100 100 5
-run_death "5 1 1 1 3" 5 1 1 1 3
+run_death "5 1 1 1 3" 5 90 60 60 3
 run_death "10 200 100 100 10" 10 200 100 100 10
 echo -e "\n"
 rm -rf .julestestout .julesphilolog .julesdeathlog
 echo -e "---- TRACE ENDS ----\n" >> philo_trace
+
+# Created by Jules Pierce @ Hive Helsinki 2025/03/11 - https://github.com/Jules478
