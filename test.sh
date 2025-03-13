@@ -107,7 +107,7 @@ run_full()
 		fi
 		sleep 1
 	done
-	awk '$2 == "1"' .julestestout > .julesphilolog
+	awk '$2 == " 1 "' .julestestout > .julesphilolog
 	read eat_time sleep_time think_time < <(awk '
 	$4 == "eating" && !eat_time {
 		eat_time = $1
@@ -235,12 +235,12 @@ echo -e "${PURPLE}\n\n--- ${WHITE}One Philosopher Tests${PURPLE} ---\n${RESET}"
 echo -e "-- One Philosopher Tests --\n" >> philo_trace
 
 echo -e "1 died" > .julestestfile
-run_one "1 1 1 1 1" 1 200 60 60 1
-run_one "1 2 1 1 2" 1 200 60 60 2
-run_one "1 10 5 5 2" 1 100 60 60 2
-run_one "1 50 10 10 2" 1 500 100 100 2
-run_one "1 50 10 10 10" 1 500 100 100 10
-run_one "1 100 25 25 2" 1 1000 250 250 2
+run_one "1 200 60 60 1" 1 200 60 60 1
+run_one "1 200 60 60 2" 1 200 60 60 2
+run_one "1 100 60 60 2" 1 100 60 60 2
+run_one "1 500 100 100 2" 1 500 100 100 2
+run_one "1 500 100 100 10" 1 500 100 100 10
+run_one "1 1000 250 250 2" 1 1000 250 250 2
 run_one "1 100 150 150 10" 1 100 150 150 10
 rm -rf .julestestout .julesone .julestestfile
 
@@ -249,10 +249,10 @@ rm -rf .julestestout .julesone .julestestfile
 echo -e "${PURPLE}\n\n--- ${WHITE}No Death Tests${PURPLE} ---\n${RESET}"
 echo -e "-- No Death Tests --\n" >> philo_trace
 
-run_full "2 15 5 5 2" 2 130 60 60 2
-run_full "2 50 10 10 2" 2 300 100 100 2
-run_full "2 50 10 10 5" 2 300 100 100 5
-run_full "3 100 25 25 5" 3 200 65 65 5
+run_full "2 130 60 60 2" 2 130 60 60 2
+run_full "2 300 100 100 2" 2 300 100 100 2
+run_full "2 300 100 100 5" 2 300 100 100 5
+run_full "3 200 65 65 5" 3 200 65 65 5
 run_full "3 310 100 200 5" 3 310 100 200 5
 run_full "4 210 100 100 10" 4 210 100 100 10
 run_full "4 410 200 200 10" 4 410 200 200 10
@@ -260,8 +260,8 @@ run_full "4 600 200 200 5" 4 600 200 200 5
 run_full "5 610 200 200 5" 5 610 200 200 5
 run_full "5 600 100 200 5" 5 600 100 200 5
 run_full "5 800 200 200 7" 5 800 200 200 7
-run_full "5 100 25 25 15" 5 300 60 60 15
-run_full "10 50 10 10 50" 10 500 100 100 50
+run_full "5 300 60 60 15" 5 300 60 60 15
+run_full "10 500 100 100 50" 10 500 100 100 50
 run_full "11 900 150 90 20" 11 900 150 90 20
 
 rm -rf .julestestout .julesphilolog
@@ -271,12 +271,12 @@ rm -rf .julestestout .julesphilolog
 echo -e "${PURPLE}\n\n--- ${WHITE}Death Tests${PURPLE} ---\n${RESET}"
 echo -e "-- Death Tests --\n" >> philo_trace
 
-run_death "2 10 50 50 5" 2 100 60 60 5
-run_death "2 100 50 50 5" 2 100 100 100 5
+run_death "2 100 60 60 5" 2 100 60 60 5
+run_death "2 100 100 100 5" 2 100 100 100 5
 run_death "3 210 100 100 5" 3 210 100 100 5
-run_death "3 1 2 2 5" 3 61 60 60 5
+run_death "3 61 60 60 5" 3 61 60 60 5
 run_death "4 190 100 100 5" 4 190 100 100 5
-run_death "5 1 1 1 3" 5 90 60 60 3
+run_death "5 90 60 60 3" 5 90 60 60 3
 run_death "10 200 100 100 10" 10 200 100 100 10
 echo -e "\n"
 rm -rf .julestestout .julesphilolog .julesdeathlog
