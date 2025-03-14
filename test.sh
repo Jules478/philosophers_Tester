@@ -94,7 +94,7 @@ run_full()
 	local runtime=20
 	shift
 	> .julestestout
-	> .julesphilolog
+	> .julesphilo1log
 	( ./philo $@ 1> .julestestout 2> /dev/null ) &
 	PID=$!
 	SECONDS=0
@@ -107,20 +107,34 @@ run_full()
 		fi
 		sleep 1
 	done
-	awk '$2 == " 1 "' .julestestout > .julesphilolog
-	read eat_time sleep_time think_time < <(awk '
-	$4 == "eating" && !eat_time {
-		eat_time = $1
+	awk '$2 == "1"' .julestestout > .julesphilo1log
+	read eat_time1 sleep_time1 think_time1 < <(awk '
+	$4 == "eating" && !eat_time1 {
+		eat_time1 = $1
 	}  
-	eat_time && $4 == "sleeping" && !sleep_time {
-		sleep_time = $1
+	eat_time1 && $4 == "sleeping" && !sleep_time1 {
+		sleep_time1 = $1
 	}  
-	sleep_time && $4 == "thinking" {
-		think_time = $1
-		print eat_time, sleep_time, think_time
+	sleep_time1 && $4 == "thinking" {
+		think_time1 = $1
+		print eat_time1, sleep_time1, think_time1
 		exit
 	}
-	' .julesphilolog)
+	' .julesphilo1log)
+	awk '$2 == "2"' .julestestout > .julesphilo2log
+	read eat_time2 sleep_time2 think_time2 < <(awk '
+	$4 == "eating" && !eat_time2 {
+		eat_time2 = $1
+	}  
+	eat_time2 && $4 == "sleeping" && !sleep_time2 {
+		sleep_time2 = $1
+	}  
+	sleep_time2 && $4 == "thinking" {
+		think_time2 = $1
+		print eat_time2, sleep_time2, think_time2
+		exit
+	}
+	' .julesphilo2log)
 	if grep -q " died" .julestestout; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher died\n" >> philo_trace
@@ -133,10 +147,16 @@ run_full()
 	elif [ "$(grep "is sleeping" .julestestout | wc -l)" -lt $eat ]; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not sleep enough\n" >> philo_trace
-	elif ((sleep_time - eat_time < time_eat || sleep_time - eat_time > time_eat + tolerance)); then
+	elif ((sleep_time1 - eat_time1 < time_eat || sleep_time1 - eat_time1 > time_eat + tolerance)); then
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not eat for the correct time\n" >> philo_trace
-	elif ((think_time - sleep_time < time_sleep || think_time - sleep_time > time_sleep + tolerance)); then
+	elif ((think_time1 - sleep_time1 < time_sleep || think_time1 - sleep_time1 > time_sleep + tolerance)); then
+		echo -n "❌"
+		echo -e "$test_desc: Philosophers did not sleep for the correct time\n" >> philo_trace
+	elif ((sleep_time2 - eat_time2 < time_eat || sleep_time2 - eat_time2 > time_eat + tolerance)); then
+		echo -n "❌"
+		echo -e "$test_desc: Philosophers did not eat for the correct time\n" >> philo_trace
+	elif ((think_time2 - sleep_time2 < time_sleep || think_time2 - sleep_time2 > time_sleep + tolerance)); then
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not sleep for the correct time\n" >> philo_trace
 	else
@@ -159,7 +179,7 @@ run_death()
 	local runtime=20
 	shift
 	> .julestestout
-	> .julesphilolog
+	> .julesphilo1log
 	( ./philo $@ 1> .julestestout 2> /dev/null ) &
 	PID=$!
 	SECONDS=0
@@ -177,7 +197,7 @@ run_death()
 	awk -v id="$dead_id" '$2 == id' .julestestout > .julesdeathlog
 	last_meal=$(awk '$3 == "eating" {time = $1} END {print time}' .julesdeathlog)
 	: "${last_meal:=0}"
-	awk '$2 == "1"' .julestestout > .julesphilolog
+	awk '$2 == "1"' .julestestout > .julesphilo1log
 	variance=$((time - last_meal))
 	if ! tail -n 1 .julestestout | grep -q "died"; then
 		echo -n "❌"
@@ -190,15 +210,10 @@ run_death()
 	fi
 }
 
-# If the program doesn't exist, compile it then clean up objects.
-# If program still doesn't exist after compilation, terminate testing.
+# If program doesn't exist then abort testing.
 
 if [ ! -f "./philo" ]; then
-	make
-	make clean
-fi
-if [ ! -f "./philo" ]; then
-	echo -e "${RED}Cannot create program. Exiting test...\n${RESET}"
+	echo -e "${RED}Executable not found. Aborting test...\n${RESET}"
 	exit 1
 fi
 echo -e "----- TRACE BEGINS -----\n" >> philo_trace
@@ -249,8 +264,8 @@ rm -rf .julestestout .julesone .julestestfile
 echo -e "${PURPLE}\n\n--- ${WHITE}No Death Tests${PURPLE} ---\n${RESET}"
 echo -e "-- No Death Tests --\n" >> philo_trace
 
-run_full "2 130 60 60 2" 2 130 60 60 2
-run_full "2 300 100 100 2" 2 300 100 100 2
+run_full "2 130 60 60 4" 2 130 60 60 4
+run_full "2 300 100 100 4" 2 300 100 100 4
 run_full "2 300 100 100 5" 2 300 100 100 5
 run_full "3 200 65 65 5" 3 200 65 65 5
 run_full "3 310 100 200 5" 3 310 100 200 5
@@ -264,7 +279,7 @@ run_full "5 300 60 60 15" 5 300 60 60 15
 run_full "10 500 100 100 50" 10 500 100 100 50
 run_full "11 900 150 90 20" 11 900 150 90 20
 
-rm -rf .julestestout .julesphilolog
+rm -rf .julestestout .julesphilo1log
 
 # Run tests where a philosopher should die.
 
@@ -277,9 +292,9 @@ run_death "3 210 100 100 5" 3 210 100 100 5
 run_death "3 61 60 60 5" 3 61 60 60 5
 run_death "4 190 100 100 5" 4 190 100 100 5
 run_death "5 90 60 60 3" 5 90 60 60 3
-run_death "10 200 100 100 10" 10 200 100 100 10
+run_death "10 199 100 100 10" 10 199 100 100 10
 echo -e "\n"
-rm -rf .julestestout .julesphilolog .julesdeathlog
+rm -rf .julestestout .julesphilo1log .julesdeathlog
 echo -e "---- TRACE ENDS ----\n" >> philo_trace
 
 # Created by Jules Pierce @ Hive Helsinki 2025/03/11 - https://github.com/Jules478
