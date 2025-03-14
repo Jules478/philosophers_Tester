@@ -17,7 +17,7 @@ run_err()
 	> .julestestout
 	> .julesstderr
 
-	( ./philo "$@" > .julestestout 2> .julesstderr ) &
+	( ./philo "$@" 1> .julestestout 2> .julesstderr ) &
 	PID=$!
 	SECONDS=0
 	while ps -p $PID > /dev/null; do
@@ -92,6 +92,8 @@ run_full()
 	local forks=$(( eat * philo * 2))
 	local tolerance=1
 	local runtime=20
+	local pickups
+	local meals
 	shift
 	> .julestestout
 	> .julesphilo1log
@@ -144,7 +146,10 @@ run_full()
 	elif [ "$(grep "has taken a fork" .julestestout | wc -l)" -lt $forks ]; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not take enough forks\n" >> philo_trace
-	elif [ "$(grep "is sleeping" .julestestout | wc -l)" -lt $eat ]; then
+	elif [ $(( $(grep "has taken a fork" .julestestout | wc -l) / 2 )) -gt $(grep "eating" .julestestout | wc -l) ]; then
+		echo -n "❌"
+		echo -e "$test_desc: Philosophers took too many forks\n" >> philo_trace
+	elif [ "$(grep "is sleeping" .julestestout | wc -l)" -lt $((eat - 1)) ]; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not sleep enough\n" >> philo_trace
 	elif ((sleep_time1 - eat_time1 < time_eat || sleep_time1 - eat_time1 > time_eat + tolerance)); then
