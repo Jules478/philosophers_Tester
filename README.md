@@ -13,4 +13,10 @@ This tester is designed to check the basic running of the program which can be d
 Simply drop the shell script file wherever your philo executable is and run it. The tester will create the files it requires and cleans them up when it is finished. A trace file is produced during the test and any test failures will have their input and a brief explanation of what caused the failure sent to the trace. This file will not be overwritten on subsequent runs so a constant log of issues is kept. 
 
 > [!NOTE]
+> Some tests may take a while to complete. There is a built-in feature to detect potential infinite loops within the program. A test should hang for no longer than 20 seconds. 
+
+> [!NOTE]
+> Due to the inherent issues arising from multithreading, some tests may fail in one run of the tester while passing in other runs. If a test fails it is advised to run the tester again to see if the same failure persists. Avoid performing other tasks while the tester is running to get the most consistent results.
+
+> [!NOTE]
 > This tester is not a definitive guide on the functionality of philosophers. This is only my own personal tests. There may be edge cases that are not considered here. This tester should be used as a tool and not a replacement for a full evaluation. 

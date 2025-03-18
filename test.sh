@@ -11,7 +11,7 @@ RESET='\033[0m'
 run_err() 
 {
 	local test_desc=$1
-	local runtime=10
+	local runtime=5
 	shift
 	> .julestestfile
 	> .julestestout
@@ -50,6 +50,7 @@ run_one()
 	local min=$3
 	local max=$((min + 10))
 	local runtime=20
+	local first_ts
 	shift
 	> .julestestout
 	> .julesone
@@ -65,8 +66,18 @@ run_one()
 		fi
 		sleep 1
 	done
+	first_ts=$(head -n 1 .julesone | awk '{print $1}')
 	time=$(tail -n 1 .julesone | awk '{print $1}')
-	if ((time >= min)) && ((time <= max)); then
+	if [[ ! $first_ts =~ ^[0-9]+$ ]] || [[ ! $time =~ ^[0-9]+$ ]] || [[ ! $3 =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+			echo -e "$test_desc: Timestamp error: Non numerical\n" >> philo_trace
+			return 1
+	elif [[ ! $min =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+			echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
+			return 1
+	fi
+	if ((time - first_ts >= min - 1)) && ((time - first_ts <= max)); then
 		tail -n 1 .julesone | sed 's/[0-9]\+ //' > .julestestout
 		if diff .julestestout .julestestfile > /dev/null; then
 			echo -n "✅"
@@ -137,7 +148,16 @@ run_full()
 		exit
 	}
 	' .julesphilo2log)
-	if grep -q " died" .julestestout; then
+	if [[ ! $eat_time1 =~ ^[0-9]+$ ]] || [[ ! $eat_time2 =~ ^[0-9]+$ ]] || [[ ! $sleep_time1 =~ ^[0-9]+$ ]] || [[ ! $sleep_time2 =~ ^[0-9]+$ ]] || [[ ! $think_time1 =~ ^[0-9]+$ ]] || [[ ! $think_time2 =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+		echo -e "$test_desc: Timestamp error: Non numerical\n" >> philo_trace
+	elif [[ ! $philo =~ ^[0-9]+$ ]] || [[ ! $time_eat =~ ^[0-9]+$ ]] || [[ ! $time_sleep =~ ^[0-9]+$ ]] || [[ ! $eat =~ ^[0-9]+$ ]] || [[ ! $forks =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+		echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
+	elif [[ ! $forks =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+		echo -e "$test_desc: Calculation error: Non numerical\n" >> philo_trace
+	elif grep -q " died" .julestestout; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher died\n" >> philo_trace
 	elif [ "$(grep "is eating" .julestestout | wc -l)" -lt $eat ]; then
@@ -204,10 +224,19 @@ run_death()
 	: "${last_meal:=0}"
 	awk '$2 == "1"' .julestestout > .julesphilo1log
 	variance=$((time - last_meal))
-	if ! tail -n 1 .julestestout | grep -q "died"; then
+	if [[ ! $time =~ ^[0-9]+$ ]] || [[ ! $last_meal =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+		echo -e "$test_desc: Timestamp error: Non numerical\n" >> philo_trace
+	elif [[ ! $variance =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+		echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
+	elif [[ ! $philo =~ ^[0-9]+$ ]] || [[ ! $min =~ ^[0-9]+$ ]] || [[ ! $time_eat =~ ^[0-9]+$ ]] || [[ ! $time_sleep =~ ^[0-9]+$ ]] || [[ ! $eat =~ ^[0-9]+$ ]]; then
+		echo -n "❌"
+		echo -e "$test_desc: Calculation error: Non numerical\n" >> philo_trace
+	elif ! tail -n 1 .julestestout | grep -q "died"; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher did not die\n" >> philo_trace
-	elif ((variance < min)) && ((variance > max)); then
+	elif ((variance < min - 1)) || ((variance > max)); then
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
 	else
@@ -218,7 +247,7 @@ run_death()
 # If program doesn't exist then abort testing.
 
 if [ ! -f "./philo" ]; then
-	echo -e "${RED}Executable not found. Aborting test...\n${RESET}"
+	echo -e "${RED}Executable not found. Aborting test...${RESET}"
 	exit 1
 fi
 echo -e "----- TRACE BEGINS -----\n" >> philo_trace
@@ -247,6 +276,11 @@ run_err "1 0 1 1" 1 0 1 1
 run_err "1 1 0 1" 1 1 0 1
 run_err "1 1 1 0" 1 1 1 0
 run_err "1 1 1 1 0" 1 1 1 1 0
+run_err "2147483648 100 60 60" 2147483648 100 60 60
+run_err "2 2147483648 60 60" 2 2147483648 60 60
+run_err "2 100 2147483648 60" 2 100 2147483648 60
+run_err "2 100 60 2147483648" 2 100 60 2147483648
+run_err "2 100 60 60 2147483648" 2 100 60 60 2147483648
 rm -rf .julestestfile .julestestout .julesstderr
 
 # Run tests for one philosopher
@@ -284,7 +318,7 @@ run_full "5 300 60 60 15" 5 300 60 60 15
 run_full "10 500 100 100 50" 10 500 100 100 50
 run_full "11 900 150 90 20" 11 900 150 90 20
 
-rm -rf .julestestout .julesphilo1log
+rm -rf .julestestout .julesphilo1log .julesphilo2log
 
 # Run tests where a philosopher should die.
 
@@ -293,13 +327,15 @@ echo -e "-- Death Tests --\n" >> philo_trace
 
 run_death "2 100 60 60 5" 2 100 60 60 5
 run_death "2 100 100 100 5" 2 100 100 100 5
+run_death "2 800 700 99 1" 2 800 700 99 1
 run_death "3 210 100 100 5" 3 210 100 100 5
 run_death "3 61 60 60 5" 3 61 60 60 5
 run_death "4 190 100 100 5" 4 190 100 100 5
 run_death "5 90 60 60 3" 5 90 60 60 3
 run_death "10 199 100 100 10" 10 199 100 100 10
 echo -e "\n"
-rm -rf .julestestout .julesphilo1log .julesdeathlog
+rm -rf .julestestout .julesphilo1log .jullesphilo2log .julesdeathlog
 echo -e "---- TRACE ENDS ----\n" >> philo_trace
+echo -e "${PURPLE}--- ${WHITE}Testing complete: philo_trace created${PURPLE} ---\n${RESET}"
 
 # Created by Jules Pierce @ Hive Helsinki 2025/03/11 - https://github.com/Jules478
