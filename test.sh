@@ -229,10 +229,10 @@ run_death()
 		echo -e "$test_desc: Timestamp error: Non numerical\n" >> philo_trace
 	elif [[ ! $variance =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
+		echo -e "$test_desc: Calculation error: Non numerical\n" >> philo_trace
 	elif [[ ! $philo =~ ^[0-9]+$ ]] || [[ ! $min =~ ^[0-9]+$ ]] || [[ ! $time_eat =~ ^[0-9]+$ ]] || [[ ! $time_sleep =~ ^[0-9]+$ ]] || [[ ! $eat =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Calculation error: Non numerical\n" >> philo_trace
+		echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
 	elif ! tail -n 1 .julestestout | grep -q "died"; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher did not die\n" >> philo_trace
