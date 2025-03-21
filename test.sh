@@ -29,6 +29,7 @@ run_err()
 		fi
 		sleep 1
 	done
+	wait $PID
 	exit_code=$?
 	if [ $exit_code -eq 139 ]; then
 		echo -n "❌"
@@ -66,6 +67,13 @@ run_one()
 		fi
 		sleep 1
 	done
+	wait $PID
+	exit_code=$?
+	if [ $exit_code -eq 139 ]; then
+		echo -n "❌"
+		echo -e "$test_desc: Segmentation Fault\n" >> philo_trace
+		return 1
+	fi
 	first_ts=$(head -n 1 .julesone | awk '{print $1}')
 	time=$(tail -n 1 .julesone | awk '{print $1}')
 	if [[ ! $first_ts =~ ^[0-9]+$ ]] || [[ ! $time =~ ^[0-9]+$ ]] || [[ ! $3 =~ ^[0-9]+$ ]]; then
@@ -120,6 +128,13 @@ run_full()
 		fi
 		sleep 1
 	done
+	wait $PID
+	exit_code=$?
+	if [ $exit_code -eq 139 ]; then
+		echo -n "❌"
+		echo -e "$test_desc: Segmentation Fault\n" >> philo_trace
+		return 1
+	fi
 	awk '$2 == "1"' .julestestout > .julesphilo1log
 	read eat_time1 sleep_time1 think_time1 < <(awk '
 	$4 == "eating" && !eat_time1 {
@@ -217,6 +232,13 @@ run_death()
 		fi
 		sleep 1
 	done
+	wait $PID
+	exit_code=$?
+	if [ $exit_code -eq 139 ]; then
+		echo -n "❌"
+		echo -e "$test_desc: Segmentation Fault\n" >> philo_trace
+		return 1
+	fi
 	time=$(tail -n 1 .julestestout | awk '{print $1}')
 	dead_id=$(awk '$3 == "died" {id = $2} END {print id}' .julestestout)
 	awk -v id="$dead_id" '$2 == id' .julestestout > .julesdeathlog
@@ -249,6 +271,12 @@ run_death()
 if [ ! -f "./philo" ]; then
 	echo -e "${RED}Executable not found. Aborting test...${RESET}"
 	exit 1
+fi
+
+# If trace already exists, add seperator to denote new test run
+
+if [ -f "philo_trace" ]; then
+	echo -e "\n============================================================\n" >> philo_trace
 fi
 echo -e "----- TRACE BEGINS -----\n" >> philo_trace
 
@@ -327,7 +355,7 @@ echo -e "-- Death Tests --\n" >> philo_trace
 
 run_death "2 100 60 60 5" 2 100 60 60 5
 run_death "2 100 100 100 5" 2 100 100 100 5
-run_death "2 800 700 99 1" 2 800 700 99 1
+run_death "2 800 700 110 2" 2 800 700 110 2
 run_death "3 210 100 100 5" 3 210 100 100 5
 run_death "3 61 60 60 5" 3 61 60 60 5
 run_death "4 190 100 100 5" 4 190 100 100 5
@@ -335,7 +363,7 @@ run_death "5 90 60 60 3" 5 90 60 60 3
 run_death "10 199 100 100 10" 10 199 100 100 10
 echo -e "\n"
 rm -rf .julestestout .julesphilo1log .jullesphilo2log .julesdeathlog
-echo -e "---- TRACE ENDS ----\n" >> philo_trace
+echo -e "---- TRACE ENDS ----" >> philo_trace
 echo -e "${PURPLE}--- ${WHITE}Testing complete: philo_trace created${PURPLE} ---\n${RESET}"
 
 # Created by Jules Pierce @ Hive Helsinki 2025/03/11 - https://github.com/Jules478
