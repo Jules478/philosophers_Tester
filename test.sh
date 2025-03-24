@@ -266,6 +266,18 @@ run_death()
 	fi
 }
 
+echo -e "
+${PURPLE}#################################################################################################################${RESET}
+${PURPLE}#${RESET}.${WHITE}########${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}####${RESET}.${WHITE}##${RESET}........${WHITE}#######${RESET}...${WHITE}######${RESET}...${WHITE}#######${RESET}..${WHITE}########${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}########${RESET}.${WHITE}########${RESET}...${WHITE}######${RESET}.${WHITE}${PURPLE}#${RESET}
+${PURPLE}#${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}....${WHITE}##${PURPLE}#${RESET}
+${PURPLE}#${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}......${PURPLE}#${RESET}
+${PURPLE}#${RESET}.${WHITE}########${RESET}..${WHITE}#########${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}######${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}########${RESET}..${WHITE}#########${RESET}.${WHITE}######${RESET}...${WHITE}########${RESET}...${WHITE}######${RESET}.${PURPLE}#${RESET}
+${PURPLE}#${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.......${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}...${WHITE}##${RESET}.........${WHITE}##${PURPLE}#${RESET}
+${PURPLE}#${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}....${WHITE}##${RESET}..${WHITE}##${RESET}....${WHITE}##${PURPLE}#${RESET}
+${PURPLE}#${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}####${RESET}.${WHITE}########${RESET}..${WHITE}#######${RESET}...${WHITE}######${RESET}...${WHITE}#######${RESET}..${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}########${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}######${RESET}.${PURPLE}#${RESET}
+${PURPLE}#################################################################################################################${RESET}
+"
+
 # If program doesn't exist then abort testing.
 
 if [ ! -f "./philo" ]; then
