@@ -5,6 +5,8 @@ RED='\e[1;31m'
 WHITE='\e[1;37m'
 RESET='\033[0m'
 
+# Add in logic to check if the time_to_die is at start or end of eating with time_to_eat
+
 # Function to test error cases. Checks that something is written to either stdout or stderr.
 # Will also report segmentation fault and report which arguments caused it.
 
@@ -61,7 +63,7 @@ run_one()
 	while ps -p $PID > /dev/null; do
 		if [ $SECONDS -gt $runtime ]; then
 			kill $PID
-			echo -n "❌"
+			echo -n "❌" 
 			echo -e "$test_desc: Program timed out. Possible infinite loop\n" >> philo_trace
 			return 1
 		fi
@@ -259,8 +261,10 @@ run_death()
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher did not die\n" >> philo_trace
 	elif ((variance < min - 1)) || ((variance > max)); then
-		echo -n "❌"
-		echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
+		if ((variance < min + time_eat - 1)) || ((variance > max + time_eat)); then
+			echo -n "❌"
+			echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
+		fi
 	else
 		echo -n "✅"
 	fi
