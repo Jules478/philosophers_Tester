@@ -279,6 +279,8 @@ run_death()
 	fi
 }
 
+trap "rm -rf .julesdeathlog .julesone .julesphilo1log .julesphilo2log .julesstderr .julestestfile .julestestout" EXIT
+
 echo -e "
 ${PURPLE}#################################################################################################################${RESET}
 ${PURPLE}#${RESET}.${WHITE}########${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}####${RESET}.${WHITE}##${RESET}........${WHITE}#######${RESET}...${WHITE}######${RESET}...${WHITE}#######${RESET}..${WHITE}########${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}########${RESET}.${WHITE}########${RESET}...${WHITE}######${RESET}.${WHITE}${PURPLE}#${RESET}
@@ -387,7 +389,7 @@ run_death "4 190 100 100 5" 4 190 100 100 5
 run_death "5 90 60 60 3" 5 90 60 60 3
 run_death "10 199 100 100 10" 10 199 100 100 10
 echo -e "\n"
-rm -rf .julestestout .julesphilo1log .jullesphilo2log .julesdeathlog
+rm -rf .julestestout .julesphilo1log .julesphilo2log .julesdeathlog
 echo -e "---- TRACE ENDS ----" >> philo_trace
 echo -e "${PURPLE}--- ${WHITE}Testing complete: philo_trace created${PURPLE} ---\n${RESET}"
 
