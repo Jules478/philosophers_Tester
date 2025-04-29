@@ -80,12 +80,12 @@ run_one()
 	time=$(tail -n 1 .julesone | awk '{print $1}')
 	if [[ ! $first_ts =~ ^[0-9]+$ ]] || [[ ! $time =~ ^[0-9]+$ ]] || [[ ! $3 =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-			echo -e "$test_desc: Timestamp error: Non numerical\n" >> philo_trace
-			return 1
+		echo -e "$test_desc: Timestamp error: Non numerical\n\tSimulation start: $first_ts Death: $time\n" >> philo_trace
+		return 1
 	elif [[ ! $min =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-			echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
-			return 1
+		echo -e "$test_desc: Input error: Non numerical\n\tTime to die: $min\n" >> philo_trace
+		return 1
 	fi
 	if ((time - first_ts >= min - 1)) && ((time - first_ts <= max)); then
 		tail -n 1 .julesone | sed 's/[0-9]\+ //' > .julestestout
@@ -97,7 +97,7 @@ run_one()
 		fi
 	else
 		echo -n "❌"
-		echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
+		echo -e "$test_desc: Philosopher did not die on time\nSimulation start: $first_ts Death: $time\n" >> philo_trace
 	fi
 }
 
@@ -167,40 +167,51 @@ run_full()
 	' .julesphilo2log)
 	if [[ ! $eat_time1 =~ ^[0-9]+$ ]] || [[ ! $eat_time2 =~ ^[0-9]+$ ]] || [[ ! $sleep_time1 =~ ^[0-9]+$ ]] || [[ ! $sleep_time2 =~ ^[0-9]+$ ]] || [[ ! $think_time1 =~ ^[0-9]+$ ]] || [[ ! $think_time2 =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Timestamp error: Non numerical\n" >> philo_trace
-	elif [[ ! $philo =~ ^[0-9]+$ ]] || [[ ! $time_eat =~ ^[0-9]+$ ]] || [[ ! $time_sleep =~ ^[0-9]+$ ]] || [[ ! $eat =~ ^[0-9]+$ ]] || [[ ! $forks =~ ^[0-9]+$ ]]; then
+		echo -e "$test_desc: Timestamp error: Non numerical\n\tPhilo 1 eating timestamp: $eat_time1 Philo 1 sleep timestamp: $sleep_time1 Philo 1 think timestamp: $think_time1 Philo 2 eating timestamp: $eat_time2 Philo 2 sleep timestamp: $sleep_time2 Philo 2 think timestamp: $think_time2\n" >> philo_trace
+	elif [[ ! $philo =~ ^[0-9]+$ ]] || [[ ! $time_eat =~ ^[0-9]+$ ]] || [[ ! $time_sleep =~ ^[0-9]+$ ]] || [[ ! $eat =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
+		echo -e "$test_desc: Input error: Non numerical\n\tPhilo no: $philo Time to eat: $time_eat Time to sleep: $time_sleep No of times to eat: $eat\n" >> philo_trace
 	elif [[ ! $forks =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Calculation error: Non numerical\n" >> philo_trace
+		echo -e "$test_desc: Calculation error: Non numerical\n\tNo of forks collected: $forks\n" >> philo_trace
 	elif grep -q " died" .julestestout; then
+		result=$(grep -q " died" .julestestout)
 		echo -n "❌"
-		echo -e "$test_desc: Philosopher died\n" >> philo_trace
-	elif [ "$(grep "is eating" .julestestout | wc -l)" -lt $eat ]; then
+		echo -e "$test_desc: Philosopher died\n\t$result\n" >> philo_trace
+	elif [ "$(grep "is eating" .julestestout | wc -l)" -lt $((eat * philo)) ]; then
+		result=$(grep "is eating" .julestestout | wc -l)
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers did not eat enough\n" >> philo_trace
+		echo -e "$test_desc: Philosophers did not eat enough\n\tExpected: $((eat * philo)) Actual: $result\n" >> philo_trace
 	elif [ "$(grep "has taken a fork" .julestestout | wc -l)" -lt $forks ]; then
+		result=$(grep "has taken a fork" .julestestout | wc -l)
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers did not take enough forks\n" >> philo_trace
+		echo -e "$test_desc: Philosophers did not take enough forks\n\tExpected: $forks Actual: $result\n" >> philo_trace
 	elif [ $(( $(grep "has taken a fork" .julestestout | wc -l) / 2 )) -gt $(grep "eating" .julestestout | wc -l) ]; then
+		result=$((grep "has taken a fork" .julestestout | wc -l) / 2 )
+		expected=$(grep "eating" .julestestout | wc -l)
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers took too many forks\n" >> philo_trace
+		echo -e "$test_desc: Philosophers took too many forks\n\tExpected: $expected Actual $result\n" >> philo_trace
 	elif [ "$(grep "is sleeping" .julestestout | wc -l)" -lt $((eat - 1)) ]; then
+		result=$(grep "is sleeping" .julestestout | wc -l)
+		expected=$((eat - 1))
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers did not sleep enough\n" >> philo_trace
+		echo -e "$test_desc: Philosophers did not sleep enough\n\tExpected: $expected Actual: $result\n" >> philo_trace
 	elif ((sleep_time1 - eat_time1 < time_eat || sleep_time1 - eat_time1 > time_eat + tolerance)); then
+		result=$(sleep_time1 - eat_time1)
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers did not eat for the correct time\n" >> philo_trace
+		echo -e "$test_desc: Philosophers did not eat for the correct time\n\tExpected: $time_eat Actual: $result\n" >> philo_trace
 	elif ((think_time1 - sleep_time1 < time_sleep || think_time1 - sleep_time1 > time_sleep + tolerance)); then
+		result=$(think_time1 - sleep_time1)
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers did not sleep for the correct time\n" >> philo_trace
+		echo -e "$test_desc: Philosophers did not sleep for the correct time\nExpected: $time_sleep Actual: $result\n" >> philo_trace
 	elif ((sleep_time2 - eat_time2 < time_eat || sleep_time2 - eat_time2 > time_eat + tolerance)); then
+		result=$(sleep_time2 - eat_time2)
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers did not eat for the correct time\n" >> philo_trace
+		echo -e "$test_desc: Philosophers did not eat for the correct time\n\tExpected: $time_eat Actual: $result\n" >> philo_trace
 	elif ((think_time2 - sleep_time2 < time_sleep || think_time2 - sleep_time2 > time_sleep + tolerance)); then
+		result=$(think_time2 - sleep_time2)
 		echo -n "❌"
-		echo -e "$test_desc: Philosophers did not sleep for the correct time\n" >> philo_trace
+		echo -e "$test_desc: Philosophers did not sleep for the correct time\nExpected: $time_sleep Actual: $result\n" >> philo_trace
 	else
 		echo -n "✅"
 	fi
@@ -250,19 +261,19 @@ run_death()
 	variance=$((time - last_meal))
 	if [[ ! $time =~ ^[0-9]+$ ]] || [[ ! $last_meal =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Timestamp error: Non numerical\n" >> philo_trace
+		echo -e "$test_desc: Timestamp error: Non numerical\n\tTime of death: $time Last meal: $last_meal\n" >> philo_trace
 	elif [[ ! $variance =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Calculation error: Non numerical\n" >> philo_trace
+		echo -e "$test_desc: Calculation error: Non numerical\n\tDifference: $variance\n" >> philo_trace
 	elif [[ ! $philo =~ ^[0-9]+$ ]] || [[ ! $min =~ ^[0-9]+$ ]] || [[ ! $time_eat =~ ^[0-9]+$ ]] || [[ ! $time_sleep =~ ^[0-9]+$ ]] || [[ ! $eat =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
-		echo -e "$test_desc: Input error: Non numerical\n" >> philo_trace
+		echo -e "$test_desc: Input error: Non numerical\n\tPhilo no: $philo Time to die: $min Time to eat: $time_eat Time to sleep: $time_sleep No of times to eat: $eat\n" >> philo_trace
 	elif ! tail -n 1 .julestestout | grep -q "died"; then
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher did not die\n" >> philo_trace
 	elif ((variance < min - 1)) || ((variance > max)); then
 		echo -n "❌"
-		echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
+		echo -e "$test_desc: Philosopher did not die on time\n\tExpected: $min Actual: $variance\n" >> philo_trace
 	else
 		echo -n "✅"
 	fi
@@ -293,7 +304,7 @@ if [ -f "philo_trace" ]; then
 	echo -e "\n============================================================\n" >> philo_trace
 fi
 echo -e "----- TRACE BEGINS -----\n" >> philo_trace
-
+  
 # Run basic tests to check error cases
 
 echo -e "${PURPLE}--- ${WHITE}Basic Error Tests${PURPLE} ---\n${RESET}"
