@@ -190,8 +190,13 @@ run_full()
 		count=$(grep -c "has taken a fork" .julestestout)
 		result=$((count / 2 ))
 		expected=$(grep -c "eating" .julestestout )
-		echo -n "❌"
-		echo -e "$test_desc: Philosophers took too many forks\n\tExpected: $expected Actual $result\n" >> philo_trace
+		if ((expected - result == 1)); then
+			echo -n $'\u26A0\uFE0F'
+			echo -e "$test_desc: Warning! If philosophers continue eating after eating the required number of times then this test may flag a false positive. Check implementation." >> philo_trace
+		else
+			echo -n "❌"
+			echo -e "$test_desc: Philosophers took too many forks\n\tExpected: $expected Actual $result\n" >> philo_trace
+		fi
 	elif [ "$(grep "is sleeping" .julestestout | wc -l)" -lt $((eat - 1)) ]; then
 		result=$(grep -c "is sleeping" .julestestout)
 		expected=$((eat - 1))
