@@ -261,10 +261,8 @@ run_death()
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher did not die\n" >> philo_trace
 	elif ((variance < min - 1)) || ((variance > max)); then
-		if ((variance < min + time_eat - 1)) || ((variance > max + time_eat)); then
-			echo -n "❌"
-			echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
-		fi
+		echo -n "❌"
+		echo -e "$test_desc: Philosopher did not die on time\n" >> philo_trace
 	else
 		echo -n "✅"
 	fi
