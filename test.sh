@@ -179,20 +179,21 @@ run_full()
 		echo -n "❌"
 		echo -e "$test_desc: Philosopher died\n\t$result\n" >> philo_trace
 	elif [ "$(grep "is eating" .julestestout | wc -l)" -lt $((eat * philo)) ]; then
-		result=$(grep "is eating" .julestestout | wc -l)
+		result=$(grep -c "is eating" .julestestout)
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not eat enough\n\tExpected: $((eat * philo)) Actual: $result\n" >> philo_trace
 	elif [ "$(grep "has taken a fork" .julestestout | wc -l)" -lt $forks ]; then
-		result=$(grep "has taken a fork" .julestestout | wc -l)
+		result=$(grep -c "has taken a fork" .julestestout)
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not take enough forks\n\tExpected: $forks Actual: $result\n" >> philo_trace
 	elif [ $(( $(grep "has taken a fork" .julestestout | wc -l) / 2 )) -gt $(grep "eating" .julestestout | wc -l) ]; then
-		result=$((grep "has taken a fork" .julestestout | wc -l) / 2 )
-		expected=$(grep "eating" .julestestout | wc -l)
+		count=$(grep -c "has taken a fork" .julestestout)
+		result=$((count / 2 ))
+		expected=$(grep -c "eating" .julestestout )
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers took too many forks\n\tExpected: $expected Actual $result\n" >> philo_trace
 	elif [ "$(grep "is sleeping" .julestestout | wc -l)" -lt $((eat - 1)) ]; then
-		result=$(grep "is sleeping" .julestestout | wc -l)
+		result=$(grep -c "is sleeping" .julestestout)
 		expected=$((eat - 1))
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not sleep enough\n\tExpected: $expected Actual: $result\n" >> philo_trace
