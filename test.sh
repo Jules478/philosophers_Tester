@@ -190,7 +190,7 @@ run_full()
 		count=$(grep -c "has taken a fork" .julestestout)
 		result=$((count / 2 ))
 		expected=$(grep -c "eating" .julestestout )
-		if ((expected - result == 1)); then
+		if ((result - expected == 1)); then
 			echo -n $'\u26A0\uFE0F'
 			echo -e "$test_desc: Warning! If philosophers continue eating after eating the required number of times then this test may flag a false positive. Check implementation." >> philo_trace
 		else
