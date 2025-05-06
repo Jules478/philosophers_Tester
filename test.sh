@@ -258,9 +258,14 @@ run_death()
 		echo -e "$test_desc: Segmentation Fault\n" >> philo_trace
 		return 1
 	fi
-	time=$(tail -n 1 .julestestout | awk '{print $1}')
+	#time=$(tail -n 1 .julestestout | awk '{print $1}')
+	if [[ $(grep -c "died" .julestestout) -gt 1 ]]
+		echo -n "❌"
+		echo -e "$test_desc: Too many philosophers died\n" >> philo_trace
+	fi
 	dead_id=$(awk '$3 == "died" {id = $2} END {print id}' .julestestout)
 	awk -v id="$dead_id" '$2 == id' .julestestout > .julesdeathlog
+	time=$(awk '$3 == "died" {print $1}' .julesdeathlog)
 	last_meal=$(awk '$4 == "eating" {time = $1} END {print time}' .julesdeathlog)
 	: "${last_meal:=0}"
 	awk '$2 == "1"' .julestestout > .julesphilo1log
