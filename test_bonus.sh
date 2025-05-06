@@ -19,7 +19,7 @@ run_err()
 	> .julestestout
 	> .julesstderr
 
-	( ./philo "$@" 1> .julestestout 2> .julesstderr ) &
+	( ./philo_bonus "$@" 1> .julestestout 2> .julesstderr ) &
 	PID=$!
 	SECONDS=0
 	while ps -p $PID > /dev/null; do
@@ -57,7 +57,7 @@ run_one()
 	shift
 	> .julestestout
 	> .julesone
-	( ./philo $@ 1> .julesone 2> /dev/null ) &
+	( ./philo_bonus $@ 1> .julesone 2> /dev/null ) &
 	PID=$!
 	SECONDS=0
 	while ps -p $PID > /dev/null; do
@@ -118,7 +118,7 @@ run_full()
 	shift
 	> .julestestout
 	> .julesphilo1log
-	( ./philo $@ 1> .julestestout 2> /dev/null ) &
+	( ./philo_bonus $@ 1> .julestestout 2> /dev/null ) &
 	PID=$!
 	SECONDS=0
 	while ps -p $PID > /dev/null; do
@@ -239,7 +239,7 @@ run_death()
 	shift
 	> .julestestout
 	> .julesphilo1log
-	( ./philo $@ 1> .julestestout 2> /dev/null ) &
+	( ./philo_bonus $@ 1> .julestestout 2> /dev/null ) &
 	PID=$!
 	SECONDS=0
 	while ps -p $PID > /dev/null; do
@@ -306,7 +306,7 @@ ${PURPLE}#######################################################################
 
 # If program doesn't exist then abort testing.
 
-if [ ! -f "./philo" ]; then
+if [ ! -f "./philo_bonus" ]; then
 	echo -e "${RED}Executable not found. Aborting test...${RESET}"
 	exit 1
 fi
@@ -316,11 +316,11 @@ fi
 if [ -f "philo_trace" ]; then
 	echo -e "\n============================================================\n" >> philo_trace
 fi
-echo -e "----- TRACE BEGINS -----\n" >> philo_trace
+echo -e "----- BONUS TRACE BEGINS -----\n" >> philo_trace
   
 # Run basic tests to check error cases
 
-echo -e "${PURPLE}--- ${WHITE}Basic Error Tests${PURPLE} ---\n${RESET}"
+echo -e "${PURPLE}--- ${WHITE}Basic Error Tests (Bonus)${PURPLE} ---\n${RESET}"
 echo -e "-- Basic Error Tests --\n" >> philo_trace
 
 echo -n > .julestestfile
@@ -351,7 +351,7 @@ rm -rf .julestestfile .julestestout .julesstderr
 
 # Run tests for one philosopher
 
-echo -e "${PURPLE}\n\n--- ${WHITE}One Philosopher Tests${PURPLE} ---\n${RESET}"
+echo -e "${PURPLE}\n\n--- ${WHITE}One Philosopher Tests (Bonus)${PURPLE} ---\n${RESET}"
 echo -e "-- One Philosopher Tests --\n" >> philo_trace
 
 echo -e "1 died" > .julestestfile
@@ -366,7 +366,7 @@ rm -rf .julestestout .julesone .julestestfile
 
 # Run tests where no philosophers should die.
 
-echo -e "${PURPLE}\n\n--- ${WHITE}No Death Tests${PURPLE} ---\n${RESET}"
+echo -e "${PURPLE}\n\n--- ${WHITE}No Death Tests (Bonus)${PURPLE} ---\n${RESET}"
 echo -e "-- No Death Tests --\n" >> philo_trace
 
 run_full "2 130 60 60 4" 2 130 60 60 4
@@ -388,7 +388,7 @@ rm -rf .julestestout .julesphilo1log .julesphilo2log
 
 # Run tests where a philosopher should die.
 
-echo -e "${PURPLE}\n\n--- ${WHITE}Death Tests${PURPLE} ---\n${RESET}"
+echo -e "${PURPLE}\n\n--- ${WHITE}Death Tests (Bonus)${PURPLE} ---\n${RESET}"
 echo -e "-- Death Tests --\n" >> philo_trace
 
 run_death "2 100 60 60 5" 2 100 60 60 5
@@ -402,7 +402,7 @@ run_death "10 199 100 100 10" 10 199 100 100 10
 echo -e "\n"
 rm -rf .julestestout .julesphilo1log .julesphilo2log .julesdeathlog
 
-echo -e "---- TRACE ENDS ----" >> philo_trace
+echo -e "---- BONUS TRACE ENDS ----" >> philo_trace
 echo -e "${PURPLE}--- ${WHITE}Testing complete: philo_trace created${PURPLE} ---\n${RESET}"
 
 # Created by Jules Pierce @ Hive Helsinki 2025/03/11 - https://github.com/Jules478
