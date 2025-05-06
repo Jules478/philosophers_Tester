@@ -12,6 +12,8 @@ This tester is designed to check the basic running of the program which can be d
 
 Simply drop the shell script file wherever your philo executable is and run it. The tester will create the files it requires and cleans them up when it is finished. A trace file is produced during the test and any test failures will have their input and a brief explanation of what caused the failure sent to the trace. This file will not be overwritten on subsequent runs so a constant log of issues is kept. 
 
+To test the bonus program, simply use philo_bonus.sh instead. The trace will be saved to the same file and the headers will specify that the trace is for the bonus version.
+
 > [!NOTE]
 > Some tests may take a while to complete. There is a built-in feature to detect potential infinite loops within the program. A test should hang for no longer than 20 seconds. 
 
