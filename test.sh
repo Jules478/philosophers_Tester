@@ -5,8 +5,6 @@ RED='\e[1;31m'
 WHITE='\e[1;37m'
 RESET='\033[0m'
 
-# Add in logic to check if the time_to_die is at start or end of eating with time_to_eat
-
 # Function to test error cases. Checks that something is written to either stdout or stderr.
 # Will also report segmentation fault and report which arguments caused it.
 

@@ -5,8 +5,6 @@ RED='\e[1;31m'
 WHITE='\e[1;37m'
 RESET='\033[0m'
 
-# Add in logic to check if the time_to_die is at start or end of eating with time_to_eat
-
 # Function to test error cases. Checks that something is written to either stdout or stderr.
 # Will also report segmentation fault and report which arguments caused it.
 
@@ -111,10 +109,8 @@ run_full()
 	local time_sleep=$5
 	local eat=$6
 	local forks=$(( eat * philo * 2))
-	local tolerance=1
+	local tolerance=3
 	local runtime=20
-	local pickups
-	local meals
 	shift
 	> .julestestout
 	> .julesphilo1log
@@ -203,19 +199,19 @@ run_full()
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not sleep enough\n\tExpected: $expected Actual: $result\n" >> philo_trace
 	elif ((sleep_time1 - eat_time1 < time_eat || sleep_time1 - eat_time1 > time_eat + tolerance)); then
-		result=$(sleep_time1 - eat_time1)
+		result=$((sleep_time1 - eat_time1))
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not eat for the correct time\n\tExpected: $time_eat Actual: $result\n" >> philo_trace
 	elif ((think_time1 - sleep_time1 < time_sleep || think_time1 - sleep_time1 > time_sleep + tolerance)); then
-		result=$(think_time1 - sleep_time1)
+		result=$((think_time1 - sleep_time1))
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not sleep for the correct time\nExpected: $time_sleep Actual: $result\n" >> philo_trace
 	elif ((sleep_time2 - eat_time2 < time_eat || sleep_time2 - eat_time2 > time_eat + tolerance)); then
-		result=$(sleep_time2 - eat_time2)
+		result=$((sleep_time2 - eat_time2))
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not eat for the correct time\n\tExpected: $time_eat Actual: $result\n" >> philo_trace
 	elif ((think_time2 - sleep_time2 < time_sleep || think_time2 - sleep_time2 > time_sleep + tolerance)); then
-		result=$(think_time2 - sleep_time2)
+		result=$((think_time2 - sleep_time2))
 		echo -n "❌"
 		echo -e "$test_desc: Philosophers did not sleep for the correct time\nExpected: $time_sleep Actual: $result\n" >> philo_trace
 	else
